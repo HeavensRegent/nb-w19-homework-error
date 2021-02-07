@@ -5,25 +5,27 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import { Paper } from '@material-ui/core';
 import _ from 'lodash';
 
 export default function EmployeeTable({columns, data, searchTerm, ...props}) {
 
-    const [filteredData, setFilteredData] = useState([]);
+    const [filteredData, setFilteredData] = useState([...data]);
     const [sortColumn, setSortColumn] = useState({key: columns[0].field, direction: 'ASC'});
 
     useEffect(() => {
-        sort(sortColumn.key, sortColumn.field);
+        sort('*');
     }, [data]);
 
     useEffect(() => {
         filter(searchTerm);
     }, [searchTerm]);
     
-    const sort = (key, direction) => {
+    const sort = (key = sortColumn.key, direction = sortColumn.direction) => {
         setSortColumn({key, direction});
-        setFilteredData(data.sort((a, b) => {
+        setFilteredData((key === '*' ? data : filteredData).sort((a, b) => {
             let aValue = _.get(a, key);
             let bValue = _.get(b, key);
 
@@ -45,6 +47,7 @@ export default function EmployeeTable({columns, data, searchTerm, ...props}) {
     };
 
     const filter = (value) => {
+        sort();
         if(!value)
         {
             return setFilteredData(data);
@@ -70,6 +73,7 @@ export default function EmployeeTable({columns, data, searchTerm, ...props}) {
                     }}
                 >
                     {column.header}
+                    {column.field === sortColumn.key ? sortColumn.direction === 'ASC' ? <ArrowDropDownIcon/> : <ArrowDropUpIcon/> : ''}
                 </TableCell>
             )}
         </TableRow>
